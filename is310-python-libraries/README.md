@@ -49,4 +49,4 @@ AI helped me with the writing of the readme file and also helped me when I was c
 
 ## Peer testing
 
-Peer testing is a separate step after posting your repository link. Test a classmate's interface, enter two records, attach its output and give specific feedback in their GitHub discussion thread.
+Peer testing is a separate step after posting your repository link. Test a classmate's interface, enter two records, attach its output and give specific feedback in their GitHub discussion thread. 
