@@ -37,7 +37,7 @@ For classmates with little coding experience, I would choose the HTML version. F
 
 ## AI development record
 
-AI generated the initial Python, HTML and supporting files based on the assignment instructions and the college sports spending topic. Review and revise the code and this README to reflect your own testing, decisions and changes before submitting. AI-use documentation belongs in `ai-chat-log.md` under the assignment's submission rules.
+AI helped me with the writing of the readme file and also helped me when I was confused with the Python. It also helped me write some of the html files when I was a little confused.
 
 ## Contents
 
