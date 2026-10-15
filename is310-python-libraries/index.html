@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>College Sports Spending Data Entry</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 880px; margin: 2rem auto; padding: 0 1rem; color: #17243a; }
+    h1 { margin-bottom: .25rem; } p { line-height: 1.5; }
+    form { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .85rem; margin: 1.5rem 0; }
+    label { display: grid; gap: .25rem; font-weight: 600; }
+    input, select, button { padding: .65rem; font: inherit; }
+    input, select { border: 1px solid #9ca3af; border-radius: 6px; }
+    button { border: 0; background: #173b71; color: white; border-radius: 6px; cursor: pointer; }
+    button:disabled { background: #9ca3af; cursor: not-allowed; }
+    .wide { grid-column: 1 / -1; }
+    .actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+    .preview { border: 1px solid #9ca3af; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+    .preview[hidden] { display: none; }
+    .scroll { overflow-x: auto; } table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: .6rem; border-bottom: 1px solid #ddd; }
+    #message { min-height: 1.5rem; }
+  </style>
+</head>
+<body>
+  <h1>College Sports Spending Data Entry</h1>
+  <p>Record spending by school, year, category, amount and source. Example spending amounts are verified 2024 total athletic expenses from the Knight-Newhouse College Athletics Database.</p>
+  <h2>Example records</h2>
+  <div class="scroll"><table><thead><tr><th>School</th><th>Year</th><th>Category</th><th>Amount USD</th><th>Source</th></tr></thead>
+    <tbody><tr><td>University of Illinois Urbana-Champaign</td><td>2024</td><td>Total athletic expenses</td><td>$169,474,512</td><td><a href="https://www.knightnewhousedata.org/fbs/big-ten/university-illinois-urbana-champaign">Knight-Newhouse</a></td></tr>
+<tr><td>University of Michigan</td><td>2024</td><td>Total athletic expenses</td><td>$241,856,430</td><td><a href="https://www.knightnewhousedata.org/fbs/big-ten/university-michigan">Knight-Newhouse</a></td></tr>
+<tr><td>Ohio State University</td><td>2024</td><td>Total athletic expenses</td><td>$295,174,868</td><td><a href="https://www.knightnewhousedata.org/fbs/big-ten/ohio-state-university">Knight-Newhouse</a></td></tr></tbody></table></div>
+  <h2>Add your records</h2>
+  <form id="entryForm">
+    <label>School<input name="school" required maxlength="100"></label>
+    <label>Year<input name="year" type="number" required min="1900" max="2100" step="1" placeholder="2025"></label>
+    <label>Category<select name="category" required><option value="">Choose a category</option><option>Total athletic expenses</option><option>Coaching salaries</option><option>Facilities</option><option>Recruiting</option><option>Guarantee payments</option><option>Direct athlete benefits</option><option>Other</option></select></label>
+    <label>Amount USD<input name="amount" type="number" min="0" step="0.01" required placeholder="250000"></label>
+    <label class="wide">Source<input name="source" required maxlength="300" placeholder="Dataset, URL or report title"></label>
+    <button type="submit">Review record</button>
+  </form>
+  <section class="preview" id="preview" hidden aria-live="polite"><h2>Review before saving</h2><p id="previewText"></p>
+    <div class="actions"><button id="confirm" type="button">Confirm record</button><button id="edit" type="button">Edit record</button></div>
+  </section>
+  <p id="message" role="status"></p>
+  <h2>Confirmed records (<span id="count">0</span>)</h2>
+  <div class="scroll"><table><thead><tr><th>School</th><th>Year</th><th>Category</th><th>Amount USD</th><th>Source</th></tr></thead><tbody id="records"></tbody></table></div>
+  <p>Confirm at least two records before downloading your JSON file.</p>
+  <button id="download" type="button" disabled>Download JSON</button>
+  <script>
+    const form = document.getElementById('entryForm');
+    const preview = document.getElementById('preview');
+    const records = [];
+    let pending = null;
+    const message = document.getElementById('message');
+    const printAmount = amount => Number(amount).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      const data = new FormData(form);
+      pending = { 'School': data.get('school').trim(), 'Year': String(data.get('year')),
+        'Category': data.get('category'), 'Amount USD': Number(data.get('amount')),
+        'Source': data.get('source').trim() };
+      if (!pending.School || !pending.Source || !Number.isFinite(pending['Amount USD'])) {
+        message.textContent = 'Complete every field with a valid value.'; return;
+      }
+      document.getElementById('previewText').textContent = `${pending.School} | ${pending.Year} | ${pending.Category} | ${printAmount(pending['Amount USD'])} | ${pending.Source}`;
+      preview.hidden = false;
+      message.textContent = 'Check the record, then confirm or edit.';
+    });
+    document.getElementById('edit').addEventListener('click', () => { preview.hidden = true; form.querySelector('input').focus(); });
+    document.getElementById('confirm').addEventListener('click', () => {
+      if (!pending) return;
+      records.push(pending);
+      const tr = document.createElement('tr');
+      for (const key of ['School', 'Year', 'Category', 'Amount USD', 'Source']) {
+        const td = document.createElement('td');
+        td.textContent = key === 'Amount USD' ? printAmount(pending[key]) : pending[key];
+        tr.appendChild(td);
+      }
+      document.getElementById('records').appendChild(tr);
+      document.getElementById('count').textContent = String(records.length);
+      document.getElementById('download').disabled = records.length < 2;
+      pending = null; preview.hidden = true; form.reset();
+      message.textContent = 'Record confirmed. ' + (records.length < 2 ? 'Add one more record.' : 'You may download the JSON file or add more records.');
+    });
+    document.getElementById('download').addEventListener('click', () => {
+      if (records.length < 2) return;
+      const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], {type: 'application/json'}));
+      const link = document.createElement('a'); link.href = url; link.download = 'college_sports_spending.json'; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  </script>
+</body>
+</html>

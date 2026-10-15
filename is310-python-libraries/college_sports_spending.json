@@ -1,0 +1,23 @@
+[
+  {
+    "School": "University of Illinois Urbana-Champaign",
+    "Year": "2024",
+    "Category": "Total athletic expenses",
+    "Amount USD": 169474512.0,
+    "Source": "https://www.knightnewhousedata.org/fbs/big-ten/university-illinois-urbana-champaign"
+  },
+  {
+    "School": "University of Michigan",
+    "Year": "2024",
+    "Category": "Total athletic expenses",
+    "Amount USD": 241856430.0,
+    "Source": "https://www.knightnewhousedata.org/fbs/big-ten/university-michigan"
+  },
+  {
+    "School": "Ohio State University",
+    "Year": "2024",
+    "Category": "Total athletic expenses",
+    "Amount USD": 295174868.0,
+    "Source": "https://www.knightnewhousedata.org/fbs/big-ten/ohio-state-university"
+  }
+]
